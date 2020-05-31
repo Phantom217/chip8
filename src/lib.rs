@@ -95,6 +95,8 @@ impl fmt::Debug for Mem {
 }
 
 pub mod types {
+    use std::fmt;
+
     pub type Byte = u8;
 
     /// Absolute memory address
@@ -103,10 +105,30 @@ pub mod types {
     #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     #[repr(transparent)]
     pub struct Addr(u16);
+
     impl From<u16> for Addr {
         /// Convert from a `u16` to an `Addr`, ignoring any high bits
         fn from(bits: u16) -> Self {
             Self(bits & 0x0FFF)
+        }
+    }
+    impl fmt::UpperHex for Addr {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
+
+            fmt::UpperHex::fmt(&val, f)
+        }
+    }
+    impl fmt::LowerHex for Addr {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
+
+            fmt::LowerHex::fmt(&val, f)
+        }
+    }
+    impl fmt::Display for Addr {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "{:#05X}", self.0)
         }
     }
 
@@ -116,10 +138,32 @@ pub mod types {
     #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     #[repr(transparent)]
     pub struct Nibble(u8);
+
     impl From<u8> for Nibble {
         /// Convert from a `u8` to a `Nibble`, ignoring any high bits
         fn from(bits: u8) -> Self {
             Self(bits & 0x0F)
+        }
+    }
+    impl fmt::UpperHex for Nibble {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
+
+            fmt::UpperHex::fmt(&val, f)
+        }
+    }
+    impl fmt::LowerHex for Nibble {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
+
+            fmt::LowerHex::fmt(&val, f)
+        }
+    }
+    impl fmt::Display for Nibble {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
+
+            fmt::Display::fmt(&val, f)
         }
     }
 }
@@ -156,22 +200,31 @@ pub mod instruction {
 pub mod opcode {
     use std::fmt;
 
+    use super::types::Nibble;
+
     #[derive(Debug, Copy, Clone)]
     pub struct OpCode(u16);
 
     impl OpCode {
-        fn to_match_tuple(&self) -> (u8, u8, u8, u8) {
+        pub fn to_match_tuple(&self) -> (Nibble, Nibble, Nibble, Nibble) {
             self.into()
         }
     }
 
+    /// Operands variants for an opcode
     #[derive(Debug)]
     pub enum Operands {
+        /// No operands
         Empty,
+        /// 12 bit address (`nnn`)
         Address(u16),
+        /// Register name (`x`)
         Reg(u8),
+        /// Register names (`xy`)
         Regs(u8, u8),
+        /// Register name and 8 bit constant (`xkk`)
         RegAndConst(u8, u8),
+        /// Register names, and 4 bit constant (`xyn`)
         RegsAndConst(u8, u8, u8),
     }
 
@@ -212,13 +265,13 @@ pub mod opcode {
             Self((b1 << 8) | b2)
         }
     }
-    impl From<&OpCode> for (u8, u8, u8, u8) {
+    impl From<&OpCode> for (Nibble, Nibble, Nibble, Nibble) {
         fn from(opcode: &OpCode) -> Self {
             (
-                ((opcode.0 & 0xF000) >> 12) as u8,
-                ((opcode.0 & 0x0F00) >> 8) as u8,
-                ((opcode.0 & 0x00F0) >> 4) as u8,
-                ((opcode.0 & 0x000F) >> 0) as u8,
+                Nibble::from(((opcode.0 & 0xF000) >> 12) as u8),
+                Nibble::from(((opcode.0 & 0x0F00) >> 8) as u8),
+                Nibble::from(((opcode.0 & 0x00F0) >> 4) as u8),
+                Nibble::from(((opcode.0 & 0x000F) >> 0) as u8),
             )
         }
     }
@@ -230,7 +283,13 @@ pub mod opcode {
             fmt::UpperHex::fmt(&val, f)
         }
     }
+    impl fmt::LowerHex for OpCode {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let val = self.0;
 
+            fmt::LowerHex::fmt(&val, f)
+        }
+    }
     impl fmt::Display for Operands {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             match *self {

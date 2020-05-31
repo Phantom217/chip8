@@ -15,9 +15,19 @@ pub struct Args {
 fn main() {
     let args = Args::parse();
 
-    if let Err(e) = run(args) {
-        eprintln!("error: {}", e);
-    }
+    use chip8::opcode::OpCode;
+    use chip8::types::Addr;
+    let opcode = OpCode::from((0xFA, 0xCE));
+    let opcode_tuple = opcode.to_match_tuple();
+    let addr = Addr::from(0xFACE);
+    println!("{}", addr);
+    println!("{:#04X?}", opcode_tuple);
+
+    println!("\n\n{}", opcode_tuple.1);
+
+    // if let Err(e) = run(args) {
+    //     eprintln!("error: {}", e);
+    // }
 }
 
 fn run(args: Args) -> io::Result<()> {
