@@ -159,6 +159,12 @@ pub mod opcode {
     #[derive(Debug, Copy, Clone)]
     pub struct OpCode(u16);
 
+    impl OpCode {
+        fn to_match_tuple(&self) -> (u8, u8, u8, u8) {
+            self.into()
+        }
+    }
+
     #[derive(Debug)]
     pub enum Operands {
         Empty,
@@ -204,6 +210,16 @@ pub mod opcode {
             let b2 = value.1 as u16;
 
             Self((b1 << 8) | b2)
+        }
+    }
+    impl From<&OpCode> for (u8, u8, u8, u8) {
+        fn from(opcode: &OpCode) -> Self {
+            (
+                ((opcode.0 & 0xF000) >> 12) as u8,
+                ((opcode.0 & 0x0F00) >> 8) as u8,
+                ((opcode.0 & 0x00F0) >> 4) as u8,
+                ((opcode.0 & 0x000F) >> 0) as u8,
+            )
         }
     }
 
