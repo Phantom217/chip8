@@ -3,3 +3,6 @@ name = "chip8"
 version = "0.1.0"
 authors = ["Tyler Oalman <tyleroalman@gmail.com>"]
 edition = "2018"
+
+[dependencies]
+clap = "3.0.0-beta.1"
