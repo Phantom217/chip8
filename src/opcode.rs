@@ -1,3 +1,5 @@
+//! Chip-8 opcode parsing.
+
 use std::fmt;
 
 use super::types::Nibble;
@@ -6,6 +8,9 @@ use super::types::Nibble;
 pub struct OpCode(u16);
 
 impl OpCode {
+    /// Helper function to get individual [`Nibbles`] of an `OpCode`.
+    ///
+    /// [`Nibbles`]: ../types/struct.Nibble.html
     pub fn to_match_tuple(&self) -> (Nibble, Nibble, Nibble, Nibble) {
         self.into()
     }

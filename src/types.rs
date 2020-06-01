@@ -1,3 +1,5 @@
+//! Common types for chip8
+
 use std::fmt;
 
 /// A byte (8 bits)
