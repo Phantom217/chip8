@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use super::types::Nibble;
+use super::{instruction::Instruction, types::Nibble};
 
 #[derive(Debug, Copy, Clone)]
 pub struct OpCode(u16);
@@ -13,6 +13,10 @@ impl OpCode {
     /// [`Nibbles`]: ../types/struct.Nibble.html
     pub fn to_match_tuple(&self) -> (Nibble, Nibble, Nibble, Nibble) {
         self.into()
+    }
+
+    pub fn decode(&self) -> Instruction {
+        todo!("implement decode")
     }
 }
 
