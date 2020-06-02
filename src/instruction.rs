@@ -17,7 +17,7 @@
 //! * `x` - A 4-bit value, the lower 4 bits of the high byte of the instruction
 //! * `y` - A 4-bit value, the upper 4 bits of the low byte of the instruction
 //! * `kk` or `byte` - An 8-bit value, the lowest 8 bits of the instruction
-
+#![allow(unused_variables)]
 use std::fmt;
 
 use super::{
@@ -35,12 +35,13 @@ pub struct Instruction {
     opcode: OpCode,
     name: InstrName,
     operands: Operands,
+    #[allow(dead_code)]
     instruction: InstrFn,
 }
 
 impl Instruction {
     /// Create a new `Instruction`
-    fn new(opcode: OpCode, name: InstrName, ops: Operands, inst: InstrFn) -> Self {
+    pub fn new(opcode: OpCode, name: InstrName, ops: Operands, inst: InstrFn) -> Self {
         Self {
             opcode,
             name,
@@ -50,7 +51,7 @@ impl Instruction {
     }
 
     /// Execute an `Instruction`
-    fn exec(self, chip8: &mut Chip8) {
+    pub fn exec(self, chip8: &mut Chip8) {
         log::trace!("Execute `{}`", self);
         let inst = self.instruction;
         inst(chip8, self.operands);

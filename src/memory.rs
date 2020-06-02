@@ -34,9 +34,7 @@
 //! ```
 
 use std::fmt;
-use std::ops::{Index, IndexMut};
-
-use crate::types::Addr;
+use std::ops;
 
 /// Struct representing the CHIP-8 system RAM
 #[repr(transparent)]
@@ -59,33 +57,49 @@ impl Default for Mem {
     }
 }
 
-impl Index<u16> for Mem {
+impl ops::Index<usize> for Mem {
     type Output = u8;
 
-    fn index(&self, index: u16) -> &Self::Output {
-        &self.0[index as usize]
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
     }
 }
 
-impl IndexMut<u16> for Mem {
-    fn index_mut(&mut self, index: u16) -> &mut Self::Output {
-        &mut self.0[index as usize]
+impl ops::IndexMut<usize> for Mem {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 
-impl Index<Addr> for Mem {
-    type Output = u8;
+// TODO: impl Index<Range<usize>> for Mem
 
-    fn index(&self, index: Addr) -> &Self::Output {
-        &self.0[usize::from(index)]
-    }
-}
-
-impl IndexMut<Addr> for Mem {
-    fn index_mut(&mut self, index: Addr) -> &mut Self::Output {
-        &mut self.0[usize::from(index)]
-    }
-}
+// impl ops::Index<Addr> for Mem {
+//     type Output = u8;
+//
+//     fn index(&self, index: Addr) -> &Self::Output {
+//         &self.0[usize::from(index)]
+//     }
+// }
+//
+// impl ops::IndexMut<Addr> for Mem {
+//     fn index_mut(&mut self, index: Addr) -> &mut Self::Output {
+//         &mut self.0[usize::from(index)]
+//     }
+// }
+//
+// impl ops::Index<ops::Range<u16>> for Mem {
+//     type Output = [u8; 2];
+//
+//     fn index(&self, index: std::ops::Range<u16>) -> &Self::Output {
+//         &self[index]
+//     }
+// }
+//
+// impl ops::IndexMut<ops::Range<u16>> for Mem {
+//     fn index_mut(&mut self, index: std::ops::Range<u16>) -> &mut Self::Output {
+//         todo!()
+//     }
+// }
 
 impl fmt::Debug for Mem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

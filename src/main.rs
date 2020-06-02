@@ -1,3 +1,4 @@
+use std::fs;
 use std::io;
 
 use clap::{AppSettings, Clap};
@@ -24,6 +25,15 @@ fn main() {
     println!("{:#04X?}", opcode_tuple);
 
     println!("\n\n{}", opcode_tuple.1);
+
+    let rom_path = args.rom;
+    let rom = fs::read(rom_path).unwrap();
+
+    use chip8::Chip8;
+    let mut emu = Chip8::new();
+    emu.load_rom(rom);
+
+    println!("{:?}", emu.ram)
 
     // if let Err(e) = run(args) {
     //     eprintln!("error: {}", e);
