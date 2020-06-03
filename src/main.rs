@@ -1,7 +1,9 @@
-use std::fs;
 use std::io;
+use std::path::PathBuf;
 
 use clap::{AppSettings, Clap};
+
+use chip8::Emulator;
 
 #[derive(Clap)]
 #[clap(setting = AppSettings::ColoredHelp)]
@@ -10,7 +12,8 @@ pub struct Args {
     #[clap(short = "D", long)]
     debug: bool,
     /// The rom to use
-    rom: String,
+    #[clap(parse(from_os_str))]
+    rom: PathBuf,
 }
 
 fn main() {
@@ -26,12 +29,9 @@ fn main() {
 
     println!("\n\n{}", opcode_tuple.1);
 
-    let rom_path = args.rom;
-    let rom = fs::read(rom_path).unwrap();
-
     use chip8::Chip8;
     let mut emu = Chip8::new();
-    emu.load_rom(rom).unwrap();
+    emu.load_rom(&args.rom).unwrap();
 
     println!("{:?}", emu.ram)
 

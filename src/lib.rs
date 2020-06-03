@@ -5,6 +5,9 @@ pub mod opcode;
 pub mod register;
 pub mod types;
 
+use std::io;
+use std::path::Path;
+
 use error::{Chip8Error, Result};
 use opcode::OpCode;
 
@@ -14,8 +17,8 @@ const CLOCK_HZ: f32 = 600.0;
 const STACK_SIZE: usize = 16;
 
 pub trait Emulator: std::fmt::Debug {
-    /// Load a rom into memory of the emulator.
-    fn load_rom(&mut self, rom: Vec<u8>) -> Result<()>;
+    /// Load a ROM into memory of the emulator.
+    fn load_rom(&mut self, reader: &dyn AsRef<Path>) -> Result<()>;
 }
 
 #[derive(Debug)]
@@ -57,18 +60,35 @@ impl Chip8 {
 }
 
 impl Emulator for Chip8 {
-    fn load_rom(&mut self, rom: Vec<u8>) -> Result<()> {
-        use std::io;
-        if rom.len() > memory::Ram::RAM_SIZE {
+    fn load_rom(&mut self, reader: &dyn AsRef<Path>) -> Result<()> {
+        use memory::Ram;
+        use std::fs;
+        use std::io::Write;
+
+        let rom = fs::read(reader)?;
+        let rom_len = rom.len();
+
+        // ensure the ROM is smaller than available RAM
+        if rom_len > Ram::RAM_SIZE {
+            log::error!(
+                "Rom size ({}) is greater than available RAM ({})",
+                rom_len,
+                Ram::RAM_SIZE
+            );
             return Err(Chip8Error::Io(io::Error::new(
                 io::ErrorKind::WriteZero,
                 "ROM was larger than available RAM",
             )));
         }
-        for (idx, byte) in rom.into_iter().enumerate() {
-            self.ram[self.pc as usize + idx] = byte;
-        }
 
+        // TODO: check if ROM is valid before loading it into memory
+        //       (needs to contain at least 1 instruction)
+        // TODO: Get range indexing to work without interacting with the underlying field
+        let mut ram =
+            io::BufWriter::new(&mut self.ram.0[register::PROGRAM_START as usize..Ram::RAM_SIZE]);
+        ram.write_all(rom.as_ref())?;
+
+        log::debug!("Loaded ROM of size {}", rom_len);
         Ok(())
     }
 }

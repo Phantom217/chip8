@@ -38,7 +38,7 @@ use std::ops;
 
 /// Struct representing the CHIP-8 system RAM
 #[repr(transparent)]
-pub struct Ram([u8; Self::RAM_SIZE]);
+pub struct Ram(pub(crate) [u8; Self::RAM_SIZE]);
 
 impl Ram {
     /// Size of memory, 4096 bytes
