@@ -13,6 +13,11 @@ const CLOCK_HZ: f32 = 600.0;
 /// Size of the stack.
 const STACK_SIZE: usize = 16;
 
+pub trait Emulator: std::fmt::Debug {
+    /// Load a rom into memory of the emulator.
+    fn load_rom(&mut self, rom: Vec<u8>) -> Result<()>;
+}
+
 #[derive(Debug)]
 pub struct Chip8 {
     /// System RAM
@@ -49,16 +54,18 @@ impl Chip8 {
         let idx = idx as usize;
         OpCode::from((self.ram[idx], self.ram[idx + 1]))
     }
+}
 
-    pub fn load_rom(&mut self, content: Vec<u8>) -> Result<()> {
+impl Emulator for Chip8 {
+    fn load_rom(&mut self, rom: Vec<u8>) -> Result<()> {
         use std::io;
-        if content.len() > memory::Ram::RAM_SIZE {
+        if rom.len() > memory::Ram::RAM_SIZE {
             return Err(Chip8Error::Io(io::Error::new(
                 io::ErrorKind::WriteZero,
                 "ROM was larger than available RAM",
             )));
         }
-        for (idx, byte) in content.into_iter().enumerate() {
+        for (idx, byte) in rom.into_iter().enumerate() {
             self.ram[self.pc as usize + idx] = byte;
         }
 
