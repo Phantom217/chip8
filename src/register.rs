@@ -26,6 +26,9 @@ use std::ops::{Index, IndexMut};
 
 use crate::types::Nibble;
 
+/// Memory address for program (ROM) start.
+pub const PROGRAM_START: u16 = 0x200;
+
 #[derive(Debug)]
 #[repr(transparent)]
 pub struct Regs([u8; Self::NUM_GP_REGS]);

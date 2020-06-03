@@ -31,7 +31,7 @@ fn main() {
 
     use chip8::Chip8;
     let mut emu = Chip8::new();
-    emu.load_rom(rom);
+    emu.load_rom(rom).unwrap();
 
     println!("{:?}", emu.ram)
 

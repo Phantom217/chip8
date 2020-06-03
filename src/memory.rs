@@ -38,26 +38,26 @@ use std::ops;
 
 /// Struct representing the CHIP-8 system RAM
 #[repr(transparent)]
-pub struct Mem([u8; Self::MEM_SIZE]);
+pub struct Ram([u8; Self::RAM_SIZE]);
 
-impl Mem {
+impl Ram {
     /// Size of memory, 4096 bytes
-    const MEM_SIZE: usize = 0x1000;
+    pub const RAM_SIZE: usize = 0x1000;
 
     // XXX: this method is not required since we impl Default, and that's all we call in new()
-    /// Create new `Mem`
+    /// Create new `Ram`
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl Default for Mem {
+impl Default for Ram {
     fn default() -> Self {
-        Self([0x00; Self::MEM_SIZE])
+        Self([0x00; Self::RAM_SIZE])
     }
 }
 
-impl ops::Index<usize> for Mem {
+impl ops::Index<usize> for Ram {
     type Output = u8;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -65,15 +65,15 @@ impl ops::Index<usize> for Mem {
     }
 }
 
-impl ops::IndexMut<usize> for Mem {
+impl ops::IndexMut<usize> for Ram {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
     }
 }
 
-// TODO: impl Index<Range<usize>> for Mem
+// TODO: impl Index<Range<usize>> for Ram
 
-// impl ops::Index<Addr> for Mem {
+// impl ops::Index<Addr> for Ram {
 //     type Output = u8;
 //
 //     fn index(&self, index: Addr) -> &Self::Output {
@@ -81,13 +81,13 @@ impl ops::IndexMut<usize> for Mem {
 //     }
 // }
 //
-// impl ops::IndexMut<Addr> for Mem {
+// impl ops::IndexMut<Addr> for Ram {
 //     fn index_mut(&mut self, index: Addr) -> &mut Self::Output {
 //         &mut self.0[usize::from(index)]
 //     }
 // }
 //
-// impl ops::Index<ops::Range<u16>> for Mem {
+// impl ops::Index<ops::Range<u16>> for Ram {
 //     type Output = [u8; 2];
 //
 //     fn index(&self, index: std::ops::Range<u16>) -> &Self::Output {
@@ -95,13 +95,13 @@ impl ops::IndexMut<usize> for Mem {
 //     }
 // }
 //
-// impl ops::IndexMut<ops::Range<u16>> for Mem {
+// impl ops::IndexMut<ops::Range<u16>> for Ram {
 //     fn index_mut(&mut self, index: std::ops::Range<u16>) -> &mut Self::Output {
 //         todo!()
 //     }
 // }
 
-impl fmt::Debug for Mem {
+impl fmt::Debug for Ram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // this function doesn't seem efficient
         let mut vec: Vec<String> = Vec::with_capacity(17);
