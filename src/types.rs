@@ -1,6 +1,7 @@
 //! Common types for chip8
 
 use std::fmt;
+use std::ops;
 
 /// A byte (8 bits)
 pub type Byte = u8;
@@ -11,6 +12,21 @@ pub type Byte = u8;
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(transparent)]
 pub struct Addr(u16);
+
+impl Addr {
+    /// Create a new `Addr`, ignoring any high bits
+    pub fn new(bits: u16) -> Self {
+        Self::from(bits)
+    }
+}
+
+impl ops::Deref for Addr {
+    type Target = u16;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl From<u16> for Addr {
     /// Convert from a `u16` to an `Addr`, ignoring any high bits
@@ -53,6 +69,21 @@ impl fmt::Display for Addr {
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(transparent)]
 pub struct Nibble(u8);
+
+impl Nibble {
+    /// Create a new `Nibble`, ignoring any high bits
+    pub fn new(bits: u8) -> Self {
+        Self::from(bits)
+    }
+}
+
+impl ops::Deref for Nibble {
+    type Target = u8;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl From<u8> for Nibble {
     /// Convert from a `u8` to a `Nibble`, ignoring any high bits
