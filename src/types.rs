@@ -121,3 +121,34 @@ impl fmt::Display for Nibble {
         fmt::Display::fmt(&val, f)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn addr_from() {
+        let addr = Addr(0xEEF);
+        assert_eq!(Addr::from(0xBEEF), addr);
+        assert_eq!(usize::from(addr), 0xEEF as usize);
+    }
+
+    #[test]
+    fn addr_deref() {
+        let addr = Addr(0xADD);
+        assert_eq!(0xADD, *addr)
+    }
+
+    #[test]
+    fn nibble_from() {
+        let nib = Nibble(0x0F);
+        assert_eq!(Nibble::from(0xAF), nib);
+        assert_eq!(usize::from(nib), 0x0F as usize);
+    }
+
+    #[test]
+    fn nibble_deref() {
+        let nib = Nibble(0x0C);
+        assert_eq!(0xC, *nib)
+    }
+}
