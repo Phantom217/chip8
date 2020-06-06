@@ -28,7 +28,7 @@ use super::{
 /// The function an [`OpCode`] executes
 ///
 /// [`OpCode`]: ../opcode/struct.OpCode.html
-pub type InstrFn = fn(&mut Chip8, Operands) -> bool;
+pub type InstrFn = fn(&mut Chip8, Operands);
 pub type InstrName = &'static str;
 
 pub struct Instruction {

@@ -39,6 +39,7 @@ pub struct Chip8 {
 }
 
 impl Chip8 {
+    /// Initialize `Chip8` to default state and load in system fonts.
     pub fn new() -> Self {
         Self {
             ram: memory::Ram::default(),
@@ -53,6 +54,9 @@ impl Chip8 {
         // TODO: load builtin font
     }
 
+    /// Get [`OpCode`] from `idx`
+    ///
+    /// [`OpCode`]: opcode/struct.OpCode.html
     pub fn get_opcode(&self, idx: u16) -> OpCode {
         let idx = idx as usize;
         OpCode::from((self.ram[idx], self.ram[idx + 1]))
@@ -90,5 +94,19 @@ impl Emulator for Chip8 {
 
         log::debug!("Loaded ROM of size {}", rom_len);
         Ok(())
+    }
+}
+
+impl Default for Chip8 {
+    fn default() -> Self {
+        Self {
+            ram: memory::Ram::default(),
+
+            regs: register::Regs::default(),
+            i: 0x000,
+            pc: register::PROGRAM_START,
+            dt: 0x0,
+            st: 0x0,
+        }
     }
 }

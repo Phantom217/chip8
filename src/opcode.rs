@@ -1,9 +1,18 @@
 //! Chip-8 opcode parsing.
 
+use std::convert::TryFrom;
 use std::fmt;
 
-use super::{instruction::Instruction, types::Nibble};
+use super::{
+    instruction::{self, Instruction},
+    types::Nibble,
+};
 
+/// A type representing the individual nibbles of an `OpCode`.
+pub type OpCodeTuple = (u8, u8, u8, u8);
+
+// TODO: better description
+/// A struct containing the raw opcode to decode
 #[derive(Debug, Copy, Clone)]
 pub struct OpCode(u16);
 
@@ -11,12 +20,29 @@ impl OpCode {
     /// Helper function to get individual [`Nibbles`] of an `OpCode`.
     ///
     /// [`Nibbles`]: ../types/struct.Nibble.html
-    pub fn to_match_tuple(&self) -> (Nibble, Nibble, Nibble, Nibble) {
+    // XXX: pub(crate)?
+    pub fn to_match_tuple(self) -> OpCodeTuple {
         self.into()
     }
 
-    pub fn decode(&self) -> Instruction {
-        todo!("implement decode")
+    /// Decode an `OpCode` to an appropriate [`Instruction`]
+    ///
+    /// [`Instruction`]: ../instruction/struct.Instruction.html
+    pub fn decode(self) -> Instruction {
+        match self.to_match_tuple() {
+            (0x0, 0x0, 0xE, 0x0) => {
+                Instruction::new(self, "CLS", Operands::Empty, instruction::clear)
+            }
+            (0x0, 0x0, 0xE, 0xE) => {
+                Instruction::new(self, "RET", Operands::Empty, instruction::r#return)
+            }
+            (0x0, _, _, _) => Instruction::new(self, "SYS", Operands::Empty, instruction::sys),
+            _ => {
+                log::warn!("Failed to decode: `{:#06X}`", self);
+                Instruction::new(self, "???", Operands::Empty, instruction::not_implemented)
+            }
+        }
+        //todo!("implement decode")
     }
 }
 
@@ -38,7 +64,6 @@ pub enum Operands {
 }
 
 // Only need this is we can't get chunks() to work for [u8;2]
-use std::convert::TryFrom;
 impl TryFrom<&[u8]> for OpCode {
     type Error = String; // TODO: use proper error type
 
@@ -66,6 +91,7 @@ impl From<&[u8; 2]> for OpCode {
         Self((b1 << 8) | b2)
     }
 }
+
 impl From<(u8, u8)> for OpCode {
     fn from(value: (u8, u8)) -> Self {
         let b1 = value.0 as u16;
@@ -74,6 +100,19 @@ impl From<(u8, u8)> for OpCode {
         Self((b1 << 8) | b2)
     }
 }
+
+impl From<OpCode> for (u8, u8, u8, u8) {
+    fn from(opcode: OpCode) -> Self {
+        (
+            ((opcode.0 & 0xF000) >> 12) as u8,
+            ((opcode.0 & 0x0F00) >> 8) as u8,
+            ((opcode.0 & 0x00F0) >> 4) as u8,
+            ((opcode.0 & 0x000F) >> 0) as u8,
+        )
+    }
+}
+
+/*
 impl From<&OpCode> for (Nibble, Nibble, Nibble, Nibble) {
     fn from(opcode: &OpCode) -> Self {
         (
@@ -84,6 +123,7 @@ impl From<&OpCode> for (Nibble, Nibble, Nibble, Nibble) {
         )
     }
 }
+*/
 
 impl fmt::UpperHex for OpCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -92,6 +132,7 @@ impl fmt::UpperHex for OpCode {
         fmt::UpperHex::fmt(&val, f)
     }
 }
+
 impl fmt::LowerHex for OpCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let val = self.0;
@@ -99,6 +140,7 @@ impl fmt::LowerHex for OpCode {
         fmt::LowerHex::fmt(&val, f)
     }
 }
+
 impl fmt::Display for Operands {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
